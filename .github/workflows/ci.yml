@@ -78,7 +78,7 @@ jobs:
         run: |
           wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.1-0/micromamba-linux-64
           chmod +x ./micromamba-linux-64
-          ./micromamba-linux-64 create -n testenv libgomp python
+          ./micromamba-linux-64 create -n testenv -c conda-forge libgomp python
           ./micromamba-linux-64 activate testenv
           python -c "import ctypes; import os; ctypes._dlopen(os.environ['CONDA_PREFIX']+'/lib/libgomp.so.1', os.RTLD_DEEPBIND)"
 
@@ -87,7 +87,7 @@ jobs:
         run: |
           wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.1-0/micromamba-linux-64
           chmod +x ./micromamba-linux-64
-          ./micromamba-linux-64 create -n testenv libgomp compilers
+          ./micromamba-linux-64 create -n testenv -c conda-forge libgomp compilers
           ./micromamba-linux-64 activate testenv
           gcc test.c -o ./test
           ./test ${CONDA_PREFIX}/lib/libgomp.so.1
