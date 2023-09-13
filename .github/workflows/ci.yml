@@ -48,4 +48,4 @@ jobs:
 
       - name: Try to create segfault
         run: |
-          python -c "import ctypes; import os; ctypes._dlopen(os.environ['GOMP_LIBRARY_NAME'], os.RTLD_DEEPBIND)"
+          python3 -c "import ctypes; import os; ctypes._dlopen(os.environ['GOMP_LIBRARY_NAME'], os.RTLD_DEEPBIND)"
