@@ -50,7 +50,7 @@ jobs:
       - name: Install dependencies and set library name [arch-based]
         if: contains(matrix.docker_image, 'archlinux') 
         run: |
-          pacman -Sy gcc-libs python
+          pacman --noconfirm -Sy gcc-libs python
           echo "GOMP_LIBRARY_NAME=/usr/lib/libgomp.so.1" >> $GITHUB_ENV
 
       - name: Try to create segfault
