@@ -10,11 +10,14 @@ on:
 
 jobs:
   build:
-    name: '[${{ matrix.docker_image }}]'
+    name: '[${{ matrix.test_type }}@#${{ matrix.docker_image }}]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        test_type:
+          - "cpp"
+          - "python"
         docker_image:
           - "archlinux:base"
           - "fedora:37"
@@ -38,21 +41,31 @@ jobs:
         run: |
           apt update -y
           apt upgrade -y
-          apt install -y python-is-python3 libgomp1
+          apt install -y python-is-python3 libgomp1 build-essential
           echo "GOMP_LIBRARY_NAME=/usr/lib/x86_64-linux-gnu/libgomp.so.1" >> $GITHUB_ENV
+          echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
       - name: Install dependencies and set library name [Fedora-based]
         if: contains(matrix.docker_image, 'fedora') 
         run: |
-          dnf install -y python3 libgomp
+          dnf install -y python3 libgomp gcc
           echo "GOMP_LIBRARY_NAME=/usr/lib64/libgomp.so.1" >> $GITHUB_ENV
+          echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
       - name: Install dependencies and set library name [arch-based]
         if: contains(matrix.docker_image, 'archlinux') 
         run: |
-          pacman --noconfirm -Sy gcc-libs python
+          pacman --noconfirm -Sy gcc-libs python gcc
           echo "GOMP_LIBRARY_NAME=/usr/lib/libgomp.so.1" >> $GITHUB_ENV
+          echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
-      - name: Try to create segfault
+      - name: Try to create segfault [Python]
+        if: contains(matrix.test_type, 'python')
         run: |
-          python3 -c "import ctypes; import os; ctypes._dlopen(os.environ['GOMP_LIBRARY_NAME'], os.RTLD_DEEPBIND)"
+          ${PYTHON_EXECUTABLE} -c "import ctypes; import os; ctypes._dlopen(os.environ['GOMP_LIBRARY_NAME'], os.RTLD_DEEPBIND)"
+
+      - name: Try to create segfault [C++]
+        if: contains(matrix.test_type, 'cpp')
+        run: |
+          gcc test.c -o ./test
+          ./test ${GOMP_LIBRARY_NAME}
