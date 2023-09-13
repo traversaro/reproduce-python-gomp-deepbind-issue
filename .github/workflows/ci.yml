@@ -1,0 +1,41 @@
+
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: '[${{ matrix.docker_image }}]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        docker_image:
+          - "ubuntu:23.04"
+          - "ubuntu:23.10"
+          - "debian:bookworm"
+          - "debian:trixie"
+          - "debian:sid"
+
+    container:
+      image: ${{ matrix.docker_image }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies and set library name [Debian-based]
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'debian') 
+        run: |
+          apt update
+          apt upgrade
+          apt install python-is-python3 libgomp1
+          echo "GOMP_LIBRARY_NAME=/usr/lib/x86_64-linux-gnu/libgomp.so.1" >> $GITHUB_ENV
+
+      - name: Try to create segfault
+        run: |
+          python -c "import ctypes; import os; ctypes._dlopen(os.environ['GOMP_LIBRARY_NAME'], os.RTLD_DEEPBIND)"
