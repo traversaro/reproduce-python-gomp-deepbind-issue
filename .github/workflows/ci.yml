@@ -20,7 +20,6 @@ jobs:
           - "fedora:38"
           - "fedora:39"
           - "ubuntu:22.04"
-          - "ubuntu:22.10"
           - "ubuntu:23.04"
           - "ubuntu:23.10"
           - "debian:bookworm"
@@ -45,7 +44,7 @@ jobs:
         if: contains(matrix.docker_image, 'fedora') 
         run: |
           dnf update -y
-          dnf install -y python libgomp
+          dnf install -y python3 libgomp
           echo "GOMP_LIBRARY_NAME=/usr/lib64/libgomp.so.1" >> $GITHUB_ENV
 
       - name: Try to create segfault
