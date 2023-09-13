@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         docker_image:
+          - "archlinux:base"
           - "fedora:37"
           - "fedora:38"
           - "fedora:39"
@@ -45,6 +46,12 @@ jobs:
         run: |
           dnf install -y python3 libgomp
           echo "GOMP_LIBRARY_NAME=/usr/lib64/libgomp.so.1" >> $GITHUB_ENV
+
+      - name: Install dependencies and set library name [arch-based]
+        if: contains(matrix.docker_image, 'archlinux') 
+        run: |
+          pacman -S gcc-libs python
+          echo "GOMP_LIBRARY_NAME=/usr/lib/libgomp.so.1" >> $GITHUB_ENV
 
       - name: Try to create segfault
         run: |
