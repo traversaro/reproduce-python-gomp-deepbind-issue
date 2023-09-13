@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies and set library name [Debian-based]
-        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'debian') 
+        if: contains(matrix.docker_image, 'ubuntu') || contains(matrix.docker_image, 'debian') 
         run: |
           apt update
           apt upgrade
