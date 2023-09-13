@@ -43,7 +43,6 @@ jobs:
       - name: Install dependencies and set library name [Fedora-based]
         if: contains(matrix.docker_image, 'fedora') 
         run: |
-          dnf update -y
           dnf install -y python3 libgomp
           echo "GOMP_LIBRARY_NAME=/usr/lib64/libgomp.so.1" >> $GITHUB_ENV
 
