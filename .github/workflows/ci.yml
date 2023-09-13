@@ -87,5 +87,5 @@ jobs:
           wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.1-0/micromamba-linux-64
           chmod +x ./micromamba-linux-64
           ./micromamba-linux-64 create -n testenv -c conda-forge libgomp compilers
-          ./micromamba-linux-64 run -n testenv gcc test.c -o ./test
+          ./micromamba-linux-64 run -n testenv gcc -ldl test.c -o ./test
           ./micromamba-linux-64 run -n testenv ./test ${CONDA_PREFIX}/lib/libgomp.so.1
