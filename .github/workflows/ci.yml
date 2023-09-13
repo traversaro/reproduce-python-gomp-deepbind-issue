@@ -34,15 +34,15 @@ jobs:
       - name: Install dependencies and set library name [Debian-based]
         if: contains(matrix.docker_image, 'ubuntu') || contains(matrix.docker_image, 'debian') 
         run: |
-          apt update
-          apt upgrade
+          apt update -y
+          apt upgrade -y
           apt install -y python-is-python3 libgomp1
           echo "GOMP_LIBRARY_NAME=/usr/lib/x86_64-linux-gnu/libgomp.so.1" >> $GITHUB_ENV
 
       - name: Install dependencies and set library name [Fedora-based]
         if: contains(matrix.docker_image, 'fedora') 
         run: |
-          dnf update
+          dnf update -y
           dnf install -y python libgomp
           echo "GOMP_LIBRARY_NAME=/usr/lib64/libgomp.so.1" >> $GITHUB_ENV
 
