@@ -8,7 +8,7 @@ static void __attribute__((constructor))
 initialize_env (void)
 {
     char **env;
-    fprintf(stderr, "Print debug\n", *env);
+    fprintf(stderr, "Print debug\n");
     env = environ;
     fprintf(stderr, "environ %p env %p\n", env, environ);
     for (env = environ; *env != 0; env++)
