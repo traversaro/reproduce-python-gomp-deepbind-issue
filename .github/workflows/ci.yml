@@ -44,6 +44,7 @@ jobs:
           apt update -y
           apt upgrade -y
           apt install -y python-is-python3 build-essential wget
+          apt list --installed
           echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
       - name: Install dependencies and set library name [Fedora-based]
