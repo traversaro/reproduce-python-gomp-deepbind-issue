@@ -44,48 +44,32 @@ jobs:
         run: |
           apt update -y
           apt upgrade -y
-          apt install -y python-is-python3 libgomp1 build-essential wget
-          echo "GOMP_LIBRARY_NAME=/usr/lib/x86_64-linux-gnu/libgomp.so.1" >> $GITHUB_ENV
+          apt install -y python-is-python3 build-essential wget
           echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
       - name: Install dependencies and set library name [Fedora-based]
         if: contains(matrix.docker_image, 'fedora')
         run: |
-          dnf install -y python3 libgomp gcc wget
-          echo "GOMP_LIBRARY_NAME=/usr/lib64/libgomp.so.1" >> $GITHUB_ENV
+          dnf install -y python3 gcc wget
           echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
       - name: Install dependencies and set library name [arch-based]
         if: contains(matrix.docker_image, 'archlinux') 
         run: |
           pacman --noconfirm -Sy gcc-libs python gcc wget
-          echo "GOMP_LIBRARY_NAME=/usr/lib/libgomp.so.1" >> $GITHUB_ENV
           echo "PYTHON_EXECUTABLE=python3" >> $GITHUB_ENV
 
       - name: Try to create segfault [Python/System]
         if: contains(matrix.test_type, 'python') && contains(matrix.dependencies, 'system')
         run: |
-          ${PYTHON_EXECUTABLE} -c "import ctypes; import os; ctypes._dlopen(os.environ['GOMP_LIBRARY_NAME'], os.RTLD_DEEPBIND)"
-
-      - name: Try to create segfault [C++/System]
-        if: contains(matrix.test_type, 'cpp') && contains(matrix.dependencies, 'system')
-        run: |
-          gcc test.c -o ./test
-          ./test ${GOMP_LIBRARY_NAME}
+          gcc -shared -fPIC testso.c -o testso.so
+          ${PYTHON_EXECUTABLE} -c "import ctypes; import os; ctypes._dlopen('./testso.so', os.RTLD_DEEPBIND)"
 
       - name: Try to create segfault [Python/conda-forge]
         if: contains(matrix.test_type, 'python') && contains(matrix.dependencies, 'conda-forge')
         run: |
           wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.1-0/micromamba-linux-64
           chmod +x ./micromamba-linux-64
-          ./micromamba-linux-64 create -n testenv -c conda-forge libgomp python
-          ./micromamba-linux-64 run -n testenv python -c "import ctypes; import os; ctypes._dlopen(os.environ['CONDA_PREFIX']+'/lib/libgomp.so.1', os.RTLD_DEEPBIND)"
-
-      - name: Try to create segfault [C++/conda-forge]
-        if: contains(matrix.test_type, 'cpp') && contains(matrix.dependencies, 'conda-forge')
-        run: |
-          wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.1-0/micromamba-linux-64
-          chmod +x ./micromamba-linux-64
-          ./micromamba-linux-64 create -n testenv -c conda-forge libgomp compilers
-          ./micromamba-linux-64 run -n testenv gcc -ldl test.c -o ./test
-          ./micromamba-linux-64 run -n testenv ./test ${CONDA_PREFIX}/lib/libgomp.so.1
+          ./micromamba-linux-64 create -n testenv -c conda-forge compilers python
+          ./micromamba-linux-64 run -n testenv gcc -shared -fPIC testso.c -o testso.so
+          ./micromamba-linux-64 run -n testenv python -c "import ctypes; import os; ctypes._dlopen('./testso.so', os.RTLD_DEEPBIND)"
