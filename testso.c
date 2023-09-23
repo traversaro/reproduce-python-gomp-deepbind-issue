@@ -10,10 +10,8 @@ initialize_env (void)
     char **env;
     fprintf(stderr, "Print debug\n");
     env = environ;
-    fprintf(stderr, "environ %p env %p\n", env, environ);
-    for (env = environ; *env != 0; env++)
-    {
-        fprintf(stderr, "%s\n", *env);
-    }
+    fprintf(stderr, "environ %p &environ %p\n", environ, &environ);
+    // Create segfault in case environ is NULL, to easily  detect platform affected by the bug
+    char *environ_deref = *environ;
     return;
 }
