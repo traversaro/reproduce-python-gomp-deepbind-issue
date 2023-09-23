@@ -10,10 +10,15 @@ int main (int argc, char *argv[]) {
     }
     else 
     {
-        fprintf(stderr, "Trying to load with RTLD_DEEPBIND %s\n", argv[1]);
+        fprintf(stderr, "Trying to load with RTLD_NOW|RTLD_DEEPBIND %s\n", argv[1]);
     }
 
-   void * handle = dlopen(argv[1], RTLD_DEEPBIND);
+   void * handle = dlopen(argv[1], RTLD_NOW|RTLD_DEEPBIND);
+   if (!handle)
+   {
+       fprintf(stderr, "Impossible to load library .\n");
+       return EXIT_FAILURE;
+   }
 
    fprintf(stderr, "Library loaded correctly.\n");
    return EXIT_SUCCESS;
